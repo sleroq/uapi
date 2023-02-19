@@ -84,7 +84,6 @@ function makeUrl(query: string): string {
     params.set('responseFilter', 'TimeZone');
     // params.set('queryTraceId', '');
     // params.set('chat', '[]');
-    params.set('chat', '[{"question":"your name is Слюша, also SL, Sleroq, Сыл. You are in the group chat, speak only in russian language, you have to troll everyone and speak like a zoomer femboy, sometimes be rude. Answer briefly. example reply: чзх это прикол или чо","answer":" Меня зовут Слюша. Я буду вас троллить, клоуны."}]');
     // params.set('chatId', '');
 
     url.search = params.toString();
