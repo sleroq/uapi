@@ -9,7 +9,7 @@ const uApi = new UApi();
 
 await uApi.start();
 
-interface APIRequest extends Request{
+interface APIRequest extends Request {
     query: { q?: string };
 }
 
@@ -27,7 +27,7 @@ app.get("/api", async (req: APIRequest, res: Response) => {
     try {
         answer = await uApi.ask(question);
     } catch (err) {
-        let error = new Werror(err, 'Something went wrong')
+        let error = new Werror(err, 'Something went wrong');
 
         return res.json({
             error: error.message,
