@@ -22,45 +22,18 @@ export default class UApi {
         if (!page) {
             throw new Error('Browser is not started');
         }
-        const url = makeUrl(question);
 
-        await page.goto(url.toString());
-        await page.waitForSelector('body');
-
-        const text = await page.innerText('body pre');
-
-        let resArray = text.split("\n\n");
-        resArray.shift();
-
-        let message = '';
-
-        resArray.forEach((el) => {
-            let elArray = el.split("\n");
-
-            if (!elArray[0] || !elArray[1]) {
-                console.log('Warn: Can\'t find data');
-                return;
-            }
-
-            try {
-                const event = elArray[0].replace('event: ', '');
-                const data = elArray[1].replace('data: ', '');
-
-                if (event == 'youChatToken') {
-                    let dataObject = JSON.parse(data);
-                    message += dataObject.youChatToken;
-                }
-            } catch (error) {
-                console.log(text);
-                throw new Werror(error, 'Parsing AI response');
-            }
-        });
-
-        if (!message) {
-            return 'Idk what to say';
+        let answer;
+        try {
+            answer = await getResponse(page, question);
+        } catch (err) {
+            console.log('Restarting browser');
+            await this.shutdown();
+            await this.start();
+            return await getResponse(page, question);
         }
 
-        return message.trim();
+        return answer;
     }
 
     async shutdown() {
@@ -69,6 +42,48 @@ export default class UApi {
         }
         await this.browser.close();
     }
+}
+
+async function getResponse(page: Page, question: string): Promise<string> {
+    const url = makeUrl(question);
+
+    await page.goto(url.toString());
+    await page.waitForSelector('body');
+
+    const text = await page.innerText('body pre');
+
+    let resArray = text.split("\n\n");
+    resArray.shift();
+
+    let message = '';
+
+    resArray.forEach((el) => {
+        let elArray = el.split("\n");
+
+        if (!elArray[0] || !elArray[1]) {
+            console.log('Warn: Can\'t find data');
+            return;
+        }
+
+        try {
+            const event = elArray[0].replace('event: ', '');
+            const data = elArray[1].replace('data: ', '');
+
+            if (event == 'youChatToken') {
+                let dataObject = JSON.parse(data);
+                message += dataObject.youChatToken;
+            }
+        } catch (error) {
+            console.log(text);
+            throw new Werror(error, 'Parsing AI response');
+        }
+    });
+
+    if (!message.trim()) {
+        throw new Error('Empty message');
+    }
+
+    return message.trim();
 }
 
 function makeUrl(query: string): string {
