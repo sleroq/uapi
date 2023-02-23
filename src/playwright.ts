@@ -48,7 +48,7 @@ async function getResponse(page: Page, question: string): Promise<string> {
     const url = makeUrl(question);
 
     await page.goto(url.toString());
-    await page.waitForSelector('body');
+    await page.waitForSelector('body', { timeout: 60000 });
 
     const text = await page.innerText('body pre');
 
